@@ -10,6 +10,7 @@ bool sortcol( const vector<double>& v1,
     return v1[1] > v2[1];
 }
 
+
 int main() {
     int amountOfPortions;
     int amountOfFood;
