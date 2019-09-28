@@ -1,38 +1,27 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <limits.h>
-#include <stdio.h>
 // Number of vertices in the graph
-#define V 9
 using namespace std;
-// A utility function to find the vertex with minimum distance value, from
-// the set of vertices not yet included in shortest path tree
-int minDistance(vector<int> dist, bool sptSet[])
+
+unsigned long minDistance(vector<unsigned short> dist, const bool sptSet[])
 {
     // Initialize min value
-    int min = INT_MAX, min_index;
+    unsigned long min = INT32_MAX, min_index = 0;
 
-    for (int v = 0; v < V; v++)
-        if (sptSet[v] == false && dist[v] <= min)
+    for (unsigned long v = 0; v < dist.size(); v++)
+        if (!sptSet[v] && dist[v] <= min)
             min = dist[v], min_index = v;
 
     return min_index;
 }
 
-// A utility function to print the constructed distance array
-int printSolution(int dist[])
-{
-    printf("Vertex \t\t Distance from Source\n");
-    for (int i = 0; i < V; i++)
-        printf("%d \t\t %d\n", i, dist[i]);
-}
 
 // Function that implements Dijkstra's single source shortest path algorithm
 // for a graph represented using adjacency matrix representation
-vector<int> dijkstra(vector<vector<int>> graph, int src, int amountOfVertices)
+vector<unsigned short> dijkstra(vector<vector<unsigned short>> graph, int src)
 {
-    vector<int> dist(amountOfVertices); // The output array.  dist[i] will hold the shortest
+    int amountOfVertices = graph.size();
+    vector<unsigned short> dist(amountOfVertices); // The output array.  dist[i] will hold the shortest
     // distance from src to i
 
     bool sptSet[amountOfVertices]; // sptSet[i] will be true if vertex i is included in shortest
@@ -40,7 +29,7 @@ vector<int> dijkstra(vector<vector<int>> graph, int src, int amountOfVertices)
 
     // Initialize all distances as INFINITE and stpSet[] as false
     for (int i = 0; i < amountOfVertices; i++) {
-        dist[i] = INT_MAX;
+        dist[i] = INT16_MAX;
         sptSet[i] = false;
     }
     // Distance of source vertex from itself is always 0
@@ -50,7 +39,7 @@ vector<int> dijkstra(vector<vector<int>> graph, int src, int amountOfVertices)
     for (int count = 0; count < amountOfVertices - 1; count++) {
         // Pick the minimum distance vertex from the set of vertices not
         // yet processed. u is always equal to src in the first iteration.
-        int u = minDistance(dist, sptSet);
+        unsigned long u = minDistance(dist, sptSet);
 
         // Mark the picked vertex as processed
         sptSet[u] = true;
@@ -61,7 +50,7 @@ vector<int> dijkstra(vector<vector<int>> graph, int src, int amountOfVertices)
             // Update dist[v] only if is not in sptSet, there is an edge from
             // u to v, and total weight of path from src to  v through u is
             // smaller than current value of dist[v]
-            if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX
+            if (!sptSet[v] && graph[u][v] && dist[u] != INT16_MAX
                 && dist[u] + graph[u][v] < dist[v])
                 dist[v] = dist[u] + graph[u][v];
     }
@@ -70,25 +59,63 @@ vector<int> dijkstra(vector<vector<int>> graph, int src, int amountOfVertices)
     return dist;
 }
 
-vector<vector<int>> createAdjacencyMatrix(){
-
-}
-
 // driver program to test above function
 int main()
 {
-    /* Let us create the example graph discussed above */
-    vector<vector<int>> graph = { { 0, 4, 0, 0, 0, 0, 0, 8, 0 },
-                        { 4, 0, 8, 0, 0, 0, 0, 11, 0 },
-                        { 0, 8, 0, 7, 0, 4, 0, 0, 2 },
-                        { 0, 0, 7, 0, 9, 14, 0, 0, 0 },
-                        { 0, 0, 0, 9, 0, 10, 0, 0, 0 },
-                        { 0, 0, 4, 14, 10, 0, 2, 0, 0 },
-                        { 0, 0, 0, 0, 0, 2, 0, 1, 6 },
-                        { 8, 11, 0, 0, 0, 0, 1, 0, 7 },
-                        { 0, 0, 2, 0, 0, 0, 6, 7, 0 } };
+    // input
+    int amountOfTestCases;
+    cin >> amountOfTestCases;
+    for(int testCase= 0; testCase < amountOfTestCases;testCase++){
+        int amountOfVertices;
+        int amountOfEdges;
+        int amountOfDestinations;
+        cin >> amountOfVertices;
+        cin >> amountOfEdges;
+        cin >> amountOfDestinations;
+        vector< vector<unsigned short> > adjacencyMatrix;
+        adjacencyMatrix.resize(amountOfVertices , vector<unsigned short>(amountOfVertices ,INT16_MAX) );
+        //edges
+        for(int edgeCounter=0; edgeCounter < amountOfEdges; edgeCounter++){
+            int vertex1;
+            int vertex2;
+            int cost;
+            cin >> vertex1;
+            cin >> vertex2;
+            cin >> cost;
+            vertex1--;
+            vertex2--;
+            adjacencyMatrix[vertex1][vertex2]= cost;
+            adjacencyMatrix[vertex2][vertex1] = cost;
+        }
+        vector<int> destinations(amountOfDestinations);
 
-    vector<int> distanceToVertices = dijkstra(graph, 0,graph[0].size());
-    cout << distanceToVertices[1];
+
+        for(int i= 0; i < amountOfDestinations;i++){
+            int destination;
+            cin >> destination;
+            destination--;
+            destinations[i] = destination;
+        }
+
+        vector<unsigned short> distances = dijkstra(adjacencyMatrix, 0);
+
+
+        vector<int> best_destinations;
+        int shortest_distance=INT32_MAX;
+        for(int destination : destinations){
+            int distance = distances[destination];
+            if(distance < shortest_distance){
+                best_destinations.clear();
+                best_destinations.push_back(destination);
+                shortest_distance = distance;
+            }else if(distance == shortest_distance){
+                best_destinations.push_back(destination);
+            }
+        }
+
+        cout << "Case #" << testCase+1 << ": " << shortest_distance << " ";
+        for(int destination:best_destinations) cout << destination + 1 << " ";
+        cout << endl;
+    }
     return 0;
 }
