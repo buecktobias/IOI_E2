@@ -4,35 +4,42 @@
 
 using namespace std;
 
-long long encryptMessage(long long message, long long keyIndex, vector<long long> sortedKeys){
-    return message - sortedKeys[keyIndex-1];
+
+bool sortcol( const vector<double>& v1,
+              const vector<double>& v2 ) {
+    return v1[1] > v2[1];
 }
 
 int main() {
-    //input
-    long long amountKeys;
-    long long amountMessages;
-    cin >> amountKeys;
-    cin >> amountMessages;
-    vector<long long> unsortedKeys(amountKeys);
-    vector<vector<long long>> messages(amountMessages);
-    for(long long i= 0; i < amountKeys;i++){
-        cin >> unsortedKeys[i];
-    }
-    for(long long i = 0; i < amountMessages; i++){
-        vector<long long> message(2);
-        cin >> message[0];
-        cin >> message[1];
-        messages[i] = message;
-    }
-    sort(unsortedKeys.begin(),unsortedKeys.end());
-    vector<long long> encryptedMessages(amountMessages);
+    int amountOfPortions;
+    int amountOfFood;
+    cin >> amountOfFood;
+    cin >> amountOfPortions;
 
-    for(long long i = 0; i < amountMessages;i++){
-        encryptedMessages[i] = encryptMessage(messages[i][0], messages[i][1], unsortedKeys);
+    vector<vector<double>> foodsAtBuffet(amountOfFood);
+    for(int i = 0;i < amountOfFood; i++){
+        vector<double> food(2);
+        string nameOfFood; // does not matter
+        cin >> nameOfFood;
+        cin >> food[0];
+        cin >> food[1];
+        foodsAtBuffet[i] = food;
     }
-    for(long long encryptedMessage:encryptedMessages){
-        cout << encryptedMessage << endl;
+    sort(foodsAtBuffet.begin(), foodsAtBuffet.end(),sortcol);
+
+
+    double score = 0;
+    int portionsAlreadyTaken = 0;
+    int currentIndex = 0;
+    while(portionsAlreadyTaken < amountOfPortions){
+        if(foodsAtBuffet[currentIndex][0] <= 0){
+            currentIndex++;
+        }
+        score += foodsAtBuffet[currentIndex][1];
+        foodsAtBuffet[currentIndex][0]--;
+        portionsAlreadyTaken++;
     }
+
+    cout << score << endl;
     return 0;
 }
